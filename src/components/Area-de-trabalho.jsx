@@ -1,13 +1,22 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useContext, useState } from "react";
 import { v4 } from "uuid";
 import { DragDropContext } from "react-beautiful-dnd";
 import _ from "lodash";
-import initialData from "../data/data";
 import Quadro from "./Quadro";
 import { Button, Paper, Stack, TextField } from "@mui/material";
+import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import {
+  addQuadro,
+  addTarefa,
+  atualizaObjeto,
+} from "../redux/actions/tarefas-actions";
+//
+const selectDados = (state) => state.data;
 
 function AreaDeTrabalho() {
-  const [data, setData] = useState(initialData);
+  const dispatch = useDispatch();
+  const data = useSelector(selectDados);
 
   //
   const onDragEnd = useCallback(
@@ -73,61 +82,25 @@ function AreaDeTrabalho() {
           },
         };
       }
-
-      setData(newState);
+      dispatch(atualizaObjeto(newState));
     },
-    [data, setData]
+    [data, dispatch]
   );
-  // Funcao para adicionar nova tarefa
-  const onAddTarefa = useCallback(
-    (idQuadro) => {
-      const novaTarefa = window.prompt("DIGITE O NOME DA TAREFA");
-      if (!novaTarefa) {
-        return null;
-      }
-      // Gera o UUID da tarefa
-      const UUID = v4();
-      setData({
-        ...data,
-        quadros: {
-          ...data.quadros,
-          [idQuadro]: {
-            ...data.quadros[idQuadro],
-            tarefas: [...data.quadros[idQuadro].tarefas, UUID],
-          },
-        },
-        tarefas: {
-          ...data.tarefas,
-          [UUID]: {
-            id: UUID,
-            titulo: novaTarefa,
-          },
-        },
-      });
-    },
-    [data, setData]
-  );
+  //
   //
   const onCriarQuadro = useCallback(() => {
     const novoQuadro = window.prompt("Digite o nome do novo quadro");
     if (!novoQuadro) return false;
     //
     const UUID = v4();
-
-    setData({
-      ...data,
-      quadros: {
-        ...data.quadros,
-        [UUID]: {
-          id: UUID,
-          titulo: novoQuadro,
-          tarefas: [],
-        },
-      },
-      ordemQuadros: [...data.ordemQuadros, UUID],
-    });
-  }, [data, setData]);
-
+    dispatch(
+      addQuadro({
+        id: UUID,
+        titulo: novoQuadro,
+      })
+    );
+    //
+  }, [dispatch]);
   //
   return (
     <DragDropContext onDragEnd={onDragEnd}>
@@ -137,6 +110,7 @@ function AreaDeTrabalho() {
         sx={{ overfloX: "auto", width: "100%" }}
       >
         {_.map(data.ordemQuadros, (quadro) => {
+          console.log(quadro);
           const tarefasQuadro = data.quadros[quadro].tarefas;
           const { titulo } = data.quadros[quadro];
 
@@ -148,7 +122,6 @@ function AreaDeTrabalho() {
               key={quadro}
               tarefas={tarefas}
               titulo={titulo}
-              onAddTarefa={() => onAddTarefa(quadro)}
             />
           );
         })}

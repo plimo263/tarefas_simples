@@ -1,19 +1,41 @@
 import {
+  Box,
   Button,
   Divider,
-  IconButton,
+  Grow,
   List,
   Paper,
   Stack,
-  TextField,
   Typography,
 } from "@mui/material";
 import { blue, grey } from "@mui/material/colors";
-import React from "react";
+import React, { useCallback } from "react";
+import { v4 } from "uuid";
 import { Draggable, Droppable } from "react-beautiful-dnd";
+import { useDispatch } from "react-redux";
+import { addTarefa } from "../redux/actions/tarefas-actions";
 import Tarefa from "./Tarefa";
 
-function Quadro({ titulo, onAddTarefa, tarefas, id }) {
+function Quadro({ titulo, tarefas, id }) {
+  const dispatch = useDispatch();
+  // Funcao para adicionar nova tarefa
+  const onAddTarefa = useCallback(() => {
+    const novaTarefa = window.prompt("DIGITE O NOME DA TAREFA");
+    if (!novaTarefa) {
+      return null;
+    }
+    // Gera o UUID da tarefa
+    const UUID = v4();
+    dispatch(
+      addTarefa({
+        id: UUID,
+        idQuadro: id,
+        titulo: novaTarefa,
+      })
+    );
+  }, [dispatch, id]);
+
+  //
   return (
     <Paper
       sx={{
