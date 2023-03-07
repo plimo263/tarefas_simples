@@ -13,11 +13,13 @@
     "@emotion/styled": "latest",
     "@mui/icons-material": "^5.11.11",
     "@mui/material": "latest",
+    "is-hotkey": "^0.2.0",
     "react": "latest",
     "react-beautiful-dnd": "^13.1.1",
     "react-dom": "latest",
     "react-redux": "^8.0.5",
     "react-scripts": "latest",
+    "react-use": "^17.4.0",
     "redux": "^4.2.1",
     "uuid": "^9.0.0"
   },

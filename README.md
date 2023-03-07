@@ -15,6 +15,10 @@ O Tarefas Simples foi desenvolvido fazendo uso do React e das seguintes libs.
 - Material-UI
 - React Beautiful DND
 - UUID
+- react-use
+- is-hotkey
+- react
+- react-redux
 
 #### Como posso contruir ?
 

@@ -3,21 +3,42 @@ import {
   Button,
   Divider,
   Grow,
+  IconButton,
   List,
   Paper,
   Stack,
+  TextField,
   Typography,
 } from "@mui/material";
 import { blue, grey } from "@mui/material/colors";
-import React, { useCallback } from "react";
+import React, { useCallback, useRef } from "react";
 import { v4 } from "uuid";
 import { Draggable, Droppable } from "react-beautiful-dnd";
 import { useDispatch } from "react-redux";
-import { addTarefa } from "../redux/actions/tarefas-actions";
+import isHotkey from "is-hotkey";
+import { useClickAway, useToggle } from "react-use";
+import {
+  addTarefa,
+  delQuadro,
+  editQuadro,
+} from "../redux/actions/tarefas-actions";
 import Tarefa from "./Tarefa";
+import DeleteIcon from "@mui/icons-material/Delete";
+
+// Teclas de atalho para execução de recursos com combinação.
+const HOTKEY_VALIDADOR = {
+  enter: (evt) => isHotkey("enter")(evt),
+  //ctrlI: (evt) => isHotkey("mod+i")(evt),
+};
 
 function Quadro({ titulo, tarefas, id }) {
   const dispatch = useDispatch();
+  const ref = useRef(null);
+  const [editar, setEditar] = useToggle(null);
+  // Se caso clicar fora do campo
+  useClickAway(ref, () => {
+    setEditar();
+  });
   // Funcao para adicionar nova tarefa
   const onAddTarefa = useCallback(() => {
     const novaTarefa = window.prompt("DIGITE O NOME DA TAREFA");
@@ -34,6 +55,30 @@ function Quadro({ titulo, tarefas, id }) {
       })
     );
   }, [dispatch, id]);
+  //
+  const onEditarNome = useCallback(
+    (e) => {
+      if (HOTKEY_VALIDADOR.enter(e)) {
+        // Atualiza o nome (se o mesmo tiver algo)
+        if (e.target.value.length > 0) {
+          dispatch(
+            editQuadro({
+              id: id,
+              titulo: e.target.value,
+            })
+          );
+          setEditar();
+        }
+      }
+    },
+    [setEditar, dispatch]
+  );
+  //
+  const onExcluirQuadro = useCallback(() => {
+    if (window.confirm("Deseja realmente excluir o quadro ?")) {
+      dispatch(delQuadro(id));
+    }
+  }, [id, dispatch]);
 
   //
   return (
@@ -45,13 +90,46 @@ function Quadro({ titulo, tarefas, id }) {
     >
       <Stack sx={{ width: 360 }}>
         <Stack direction="row" justifyContent="space-between">
-          <div />
-          <Typography textAlign="center" variant="h6">
-            {titulo}
-          </Typography>
-          <Button title="Clique para incluir nova tarefa" onClick={onAddTarefa}>
-            + ADD
-          </Button>
+          {!editar && (
+            <IconButton
+              title="Excluir o quadro"
+              color="error"
+              onClick={onExcluirQuadro}
+            >
+              <DeleteIcon />
+            </IconButton>
+          )}
+          {editar ? (
+            <TextField
+              ref={ref}
+              autoFocus
+              inputProps={{ style: { textAlign: "center" } }}
+              type="text"
+              fullWidth
+              size="small"
+              variant="standard"
+              defaultValue={titulo}
+              label="Digite o nome"
+              onKeyDown={onEditarNome}
+            />
+          ) : (
+            <Typography
+              sx={{ cursor: "pointer", flex: 1 }}
+              onClick={setEditar}
+              textAlign="center"
+              variant="h6"
+            >
+              {titulo}
+            </Typography>
+          )}
+          {!editar && (
+            <Button
+              title="Clique para incluir nova tarefa"
+              onClick={onAddTarefa}
+            >
+              + ADD
+            </Button>
+          )}
         </Stack>
         <Divider />
         <Droppable droppableId={id}>

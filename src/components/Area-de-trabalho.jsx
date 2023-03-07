@@ -1,16 +1,12 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback } from "react";
 import { v4 } from "uuid";
 import { DragDropContext } from "react-beautiful-dnd";
 import _ from "lodash";
-import Quadro from "./Quadro";
-import { Button, Paper, Stack, TextField } from "@mui/material";
+import Quadros from "./Quadros";
+import { Button, Paper, Stack, Typography } from "@mui/material";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-import {
-  addQuadro,
-  addTarefa,
-  atualizaObjeto,
-} from "../redux/actions/tarefas-actions";
+import { addQuadro, atualizaObjeto } from "../redux/actions/tarefas-actions";
 //
 const selectDados = (state) => state.data;
 
@@ -87,6 +83,30 @@ function AreaDeTrabalho() {
     [data, dispatch]
   );
   //
+
+  //
+  return (
+    <Stack>
+      <Typography variant="h4" textAlign="center">
+        Tarefas Simples
+      </Typography>
+
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Stack
+          direction="row"
+          spacing={3}
+          sx={{ overfloX: "auto", width: "100%" }}
+        >
+          <Quadros />
+          <CriadorQuadro />
+        </Stack>
+      </DragDropContext>
+    </Stack>
+  );
+}
+//
+const CriadorQuadro = () => {
+  const dispatch = useDispatch();
   //
   const onCriarQuadro = useCallback(() => {
     const novoQuadro = window.prompt("Digite o nome do novo quadro");
@@ -101,44 +121,20 @@ function AreaDeTrabalho() {
     );
     //
   }, [dispatch]);
-  //
+
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <Stack
-        direction="row"
-        spacing={3}
-        sx={{ overfloX: "auto", width: "100%" }}
+    <Paper elevation={0} sx={{ width: 360 }}>
+      <Button
+        title="Crie um novo quadro"
+        onClick={onCriarQuadro}
+        fullWidth
+        variant="outlined"
+        sx={{ whiteSpace: "nowrap" }}
       >
-        {_.map(data.ordemQuadros, (quadro) => {
-          console.log(quadro);
-          const tarefasQuadro = data.quadros[quadro].tarefas;
-          const { titulo } = data.quadros[quadro];
-
-          const tarefas = _.map(tarefasQuadro, (k) => data.tarefas[k]);
-
-          return (
-            <Quadro
-              id={quadro}
-              key={quadro}
-              tarefas={tarefas}
-              titulo={titulo}
-            />
-          );
-        })}
-        <Paper elevation={0} sx={{ width: 360 }}>
-          <Button
-            title="Crie um novo quadro"
-            onClick={onCriarQuadro}
-            fullWidth
-            variant="outlined"
-            sx={{ whiteSpace: "nowrap" }}
-          >
-            + Criar novo quadro
-          </Button>
-        </Paper>
-      </Stack>
-    </DragDropContext>
+        + Criar novo quadro
+      </Button>
+    </Paper>
   );
-}
+};
 
 export default AreaDeTrabalho;
