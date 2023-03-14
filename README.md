@@ -2,7 +2,7 @@
 
 Este projeto tem como objetivo permitir ao usuário criar tarefas simples, com movimentação entre quadros que também podem ser criados.
 
-![img](./screenshot/tela.png)
+![Gif de uso](./screenshot/gif/pagina.gif)
 
 #### Como implementar
 
